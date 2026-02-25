@@ -1,0 +1,74 @@
+[
+  {
+    "userID": "NU00001",
+    "inquiries": [
+      {
+        "inquiryID": "I00002",
+        "inquiryname": "パスワードについて",
+        "time": "2025-11-12T12:29:55Z",
+        "status": "解決済み",
+        "filepath": null,
+        "thread": [
+          {
+            "sender": "user",
+            "message": "新しいお問い合わせを開始しました。",
+            "timestamp": "2025-11-11T15:21:05"
+          },
+          {
+            "sender": "user",
+            "message": "パスワードについて",
+            "timestamp": "2025-11-11T15:35:23"
+          },
+          {
+            "sender": "admin",
+            "message": "パスワードはパスワード変更画面で変更できます。",
+            "timestamp": "2025-11-12T10:29:40"
+          },
+          {
+            "sender": "user",
+            "message": "ありがとう",
+            "timestamp": "2025-11-12T10:35:45"
+          }
+        ]
+      },
+      {
+        "inquiryID": "I00003",
+        "inquiryname": "グラフについて",
+        "time": "2025-11-11T15:35:41",
+        "status": "未対応",
+        "filepath": null,
+        "thread": [
+          {
+            "sender": "user",
+            "message": "新しいお問い合わせを開始しました。",
+            "timestamp": "2025-11-11T15:35:41"
+          }
+        ]
+      },
+      {
+        "inquiryID": "I00004",
+        "inquiryname": "その他",
+        "time": "2025-11-12T12:32:44Z",
+        "status": "解決済み",
+        "filepath": null,
+        "thread": [
+          {
+            "sender": "user",
+            "message": "新しいお問い合わせを開始しました。",
+            "timestamp": "2025-11-12T12:31:01"
+          },
+          {
+            "sender": "user",
+            "message": "塙君はどんなひとですか？・",
+            "timestamp": "2025-11-12T12:31:21"
+          },
+          {
+            "sender": "admin",
+            "message": "車で事故を起こすことが多い人です\n",
+            "timestamp": "2025-11-12T12:32:13"
+          }
+        ]
+      }
+    ]
+  }
+]

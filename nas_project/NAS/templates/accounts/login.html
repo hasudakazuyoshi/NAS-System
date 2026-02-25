@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NASシステム ログイン</title>
+    <style>
+        body {
+            font-family: "游ゴシック", "Yu Gothic", sans-serif;
+            background-color: #fce2c4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #fce2c4;
+            padding: 40px 50px;
+            border-radius: 15px;
+           
+            width: 360px;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 35px;
+        }
+        .tab-button {
+            flex: 1;
+            margin: 0 5px;
+            padding: 10px 0;
+            border: 2px solid #0078D7;
+            border-radius: 0;
+            background-color: white;
+            color: #0078D7;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .tab-button.active {
+            background-color: #0078D7;
+            color: white;
+        }
+        .tab-button:hover {
+            opacity: 0.85;
+        }
+        label {
+            display: block;
+            text-align: left;
+            margin-top: 15px;
+            color: #444;
+            font-weight: bold;
+        }
+        .input-group {
+            position: relative;
+            width: 100%;
+            margin-bottom: 35px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: #666;
+        }
+        .toggle-password:hover {
+            color: #333;
+        }
+        .login-button {
+            width: 100%;
+            padding: 12px 0;
+            background-color: #28a745;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .login-button:hover {
+            background-color: #1e7e34;
+        }
+        .forgot-password {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #0078D7;
+            text-decoration: none;
+        }
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍃NASシステム</h1>
+        <div class="button-group">
+            <button id="loginTab" class="tab-button active">ログイン</button>
+            <button id="registerTab" class="tab-button">新規利用者登録</button>
+        </div>
+        
+        <form id="loginForm" method="post" action="{% url 'accounts:login' %}">
+            {% csrf_token %}
+            <label for="email">メールアドレス</label>
+            <input type="email" id="email" name="email" placeholder="登録しているIDを入力してください">
+            
+            <label for="password">パスワード</label>
+            <div class="input-group">
+                <input type="password" id="password" name="password" placeholder="パスワードを入力してください">
+                <button type="button" id="togglePassword" class="toggle-password">🙈</button>
+            </div>
+            
+            <button type="submit" class="login-button">ログイン</button>
+        </form>
+
+        <p>
+            <a href="{% url 'accounts:password_reset' %}" class="forgot-password">
+                パスワードを忘れた場合はこちら
+            </a>
+        </p>
+    </div>
+
+    <script>
+        const REGISTER_URL = "{% url 'accounts:register' %}";
+
+        const loginTab = document.getElementById("loginTab");
+        const registerTab = document.getElementById("registerTab");
+
+        
+        loginTab.addEventListener("click", () => {
+            loginTab.classList.add("active");
+            registerTab.classList.remove("active");
+        });
+
+       
+        registerTab.addEventListener("click", () => {
+            event.preventDefault();
+            window.location.href = REGISTER_URL; 
+            
+        });
+
+      
+        const passwordInput = document.getElementById("password");
+        const togglePassword = document.getElementById("togglePassword");
+
+        togglePassword.addEventListener("click", () => {
+            const isPassword = passwordInput.type === "password";
+            passwordInput.type = isPassword ? "text" : "password";
+            togglePassword.textContent = isPassword ? "👁️" : "🙈";
+        });
+    </script>
+</body>
+</html>

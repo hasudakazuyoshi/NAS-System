@@ -1,0 +1,22 @@
+{% extends "mail/base_email.html" %}
+
+{% block title %}メールアドレス変更確認{% endblock %}
+{% block header %}【NASシステム】メールアドレス変更確認{% endblock %}
+
+{% block content %}
+<p>以下のボタンをクリックして、新しいメールアドレスを確認してください。</p>
+
+<p style="text-align: center; margin: 30px 0;">
+    <a href="{{ verification_url }}" 
+       style="display: inline-block; background-color: #FF9800; color: white !important;
+              padding: 15px 40px; border-radius: 25px; font-size: 16px; font-weight: bold;
+              text-decoration: none;">
+        📧 メールアドレスを確認する
+    </a>
+</p>
+
+<p style="font-size: 14px; color: #888;">
+※ このリンクは24時間有効です。<br>
+もしこのメールに心当たりがない場合は、削除して問題ありません。
+</p>
+{% endblock %}

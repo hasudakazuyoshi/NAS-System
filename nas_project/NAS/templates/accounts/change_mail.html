@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>メールアドレス変更</title>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background-color: #FEF1E7;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            box-sizing: border-box;
+        }
+
+        .top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .back-button {
+            background-color: #f1f1f1;
+            border: 1px solid #ccc;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+            color: #333;
+            font-weight: normal;
+        }
+        .back-button:hover { 
+            background-color: #e0e0e0; 
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 10px;
+            margin-bottom: 30px;
+        }
+
+        #errorMessage {
+            color: #dc3545;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-align: center;
+            display: none;
+            width: 100%;
+            padding: 10px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 16px;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-wrapper input {
+            padding-right: 50px;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            right: 1px;
+            top: 1px;
+            bottom: 1px;
+            border: none;
+            background: none;
+            color: #555;
+            cursor: pointer;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .toggle-password svg {
+            width: 22px;
+            height: 22px;
+            stroke: #555;
+        }
+
+        .submit-button {
+            background-color: #8BC34A;
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 10px;
+        }
+        .submit-button:hover {
+            background-color: #7CB342;
+        }
+
+        .info-text {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.6;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div class="top-bar">
+            <button class="back-button" onclick="location.href='{{ back_url}}'">← 戻る</button>
+        </div>
+
+        <h2>メールアドレス変更</h2>
+
+        <div id="errorMessage"></div>
+
+        <form id="emailChangeForm" method="post" action="{% url 'accounts:change_mail' %}">
+            {% csrf_token %}
+    
+            <div class="input-group">
+                <label for="newEmail">新規メールアドレス</label>
+                <input type="email" id="newEmail" name="new_email"
+                    placeholder="新規メールアドレスを入力してください" required>
+            </div>
+    
+            <div class="input-group">
+                <label for="confirmPassword">確認パスワード</label>
+                <div class="password-wrapper">
+                    <input type="password" id="confirmPassword" name="password"
+                        placeholder="8文字以上で入力してください" required>
+                    <button type="button" class="toggle-password"
+                            onclick="togglePasswordVisibility('confirmPassword', this)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                            <line x1="1" y1="1" x2="23" y2="23"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            {% if error_message %}
+                <div id="errorMessage" style="display: block;">{{ error_message }}</div>
+            {% endif %}
+
+            <button type="submit" class="submit-button">完了</button>
+        </form>
+
+
+        <p class="info-text">
+            完了ボタンを押すと、確認のため新しいアドレスにメールを送信します。
+            新しいアドレスは確認が完了するまで有効化されません。
+        </p>
+
+    </div>
+
+    <script>
+        const eyeIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+        const eyeOffIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            window.scrollTo(0, 0);
+        }
+
+        
+
+        function togglePasswordVisibility(inputId, button) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.innerHTML = eyeIcon;
+            } else {
+                input.type = 'password';
+                button.innerHTML = eyeOffIcon;
+            }
+        }
+
+        function handleSubmit(event) {
+            event.preventDefault();
+
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.style.display = 'none';
+
+            const emailInput = document.getElementById('newEmail');
+            const passwordInput = document.getElementById('confirmPassword');
+            const email = emailInput.value;
+            const password = passwordInput.value;
+
+            if (email === '' || password === '') {
+                showError('すべての項目を入力してください。');
+                return;
+            }
+
+            if (password.length < 8) {
+                showError('パスワードは8文字以上で入力してください。');
+                return;
+            }
+
+            const correctPassword = "password123";
+
+            if (password !== correctPassword) {
+                showError('パスワードが正しくありません。');
+                passwordInput.value = "";
+                passwordInput.focus();
+                return;
+            }
+
+            alert("確認メールを送信しました。\nメールを確認して変更を完了してください。");
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心拍・体温グラフ - NASシステム</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background-color: #FFF3E6;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding-top: 0px;
+        }
+
+        .content {
+            width: 95%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px ;
+            box-sizing: border-box;
+        }
+
+        .top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .back-button {
+            background-color: #f1f1f1;
+            border: 1px solid #ccc;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+            color: #333;
+        }
+        .back-button:hover { background-color: #e0e0e0; }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        .character-message {
+            width: 100%;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 15px;
+            color: #333;
+            box-sizing: border-box;
+        }
+
+        .tab-container {
+            display: flex;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .tab-button {
+            flex: 1;
+            padding: 12px 10px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            border: 1px solid #BDBDBD;
+            cursor: pointer;
+            background-color: white;
+            color: #ff8c00;
+        }
+        .tab-button.active {
+            background-color: #BDBDBD;
+            color: white;
+            cursor: default;
+        }
+        .tab-button:first-child {
+            border-radius: 6px 0 0 6px;
+            border-right: none;
+        }
+        .tab-button:last-child {
+            border-radius: 0 6px 6px 0;
+        }
+
+        .period-selector {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 20px;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+        .period-label {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+        .period-select {
+            padding: 5px 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .graph-container {
+            width: 100%;
+            background-color: white;
+            border: 2px solid #757575;
+            border-radius: 6px;
+            padding: 20px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+        .graph-title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        #chartCanvas {
+            max-width: 100%;
+        }
+        #noDataMessage {
+            display: none;
+            text-align: center;
+            padding: 50px 0;
+            font-size: 16px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+{% include 'common/user_header.html' %}
+    <div class="content">
+
+        <div class="top-bar">
+            <button class="back-button" onclick="location.href='{% url 'accounts:user_home' %}'">← 一覧へ戻る</button>
+        </div>
+
+        <div class="character-message" id="characterMessage">
+            読み込み中...
+        </div>
+
+        <div class="tab-container">
+            <a href="{% url 'health:sleep_data_chart' %}" class="tab-button">睡眠時間</a>
+            <a href="#" class="tab-button active" onclick="event.preventDefault()">心拍・体温</a>
+        </div>
+
+        <div class="period-selector">
+            <span class="period-label" id="periodLabel">11/11 ~ 11/17</span>
+            <select class="period-select" id="periodSelect" onchange="updateData()">
+                <option value="this_week">今週</option>
+                <option value="1_week_ago">一週間前</option>
+                <option value="2_weeks_ago">二週間前</option>
+                <option value="3_weeks_ago">三週間前</option>
+                <option value="4_weeks_ago">四週間前</option>
+            </select>
+        </div>
+
+        <div class="graph-container">
+            <div class="graph-title">心拍数・体温グラフ</div>
+            <canvas id="chartCanvas"></canvas>
+            <div id="noDataMessage">
+                表示するデータがありません
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let healthChart;
+
+    // 初期グラフ設定
+    function initializeChart() {
+        const ctx = document.getElementById('chartCanvas').getContext('2d');
+        healthChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['日','月','火','水','木','金','土'],
+                datasets: [
+                    {
+                        label: '心拍数',
+                        data: [],
+                        borderColor: '#ff7043',
+                        backgroundColor: 'rgba(255, 112, 67, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        yAxisID: 'y'  // ✅ 左軸
+                    },
+                    {
+                        label: '体温',
+                        data: [],
+                        borderColor: '#4fc3f7',
+                        backgroundColor: 'rgba(79, 195, 247, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        yAxisID: 'y2'  // ✅ 右軸
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        position: 'left',
+                        beginAtZero: false,
+                        min: 50,  // ✅ 心拍数の最小値
+                        max: 100, // ✅ 心拍数の最大値
+                        title: {
+                            display: true,
+                            text: '心拍数 (bpm)',
+                            color: '#ff7043',
+                            font: { size: 14, weight: 'bold' }
+                        },
+                        ticks: { color: '#ff7043' }
+                    },
+                    y2: {
+                        type: 'linear',
+                        position: 'right',
+                        beginAtZero: false,
+                        min: 35.0,  // ✅ 体温の最小値
+                        max: 37.5,  // ✅ 体温の最大値
+                        title: {
+                            display: true,
+                            text: '体温 (℃)',
+                            color: '#4fc3f7',
+                            font: { size: 14, weight: 'bold' }
+                        },
+                        ticks: { color: '#4fc3f7' },
+                        grid: { drawOnChartArea: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    if (context.datasetIndex === 0) {
+                                        // 心拍数
+                                        label += context.parsed.y + ' bpm';
+                                    } else {
+                                        // 体温
+                                        label += context.parsed.y + ' ℃';
+                                    }
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // JSONからデータ取得
+    async function updateData() {
+        const periodSelect = document.getElementById('periodSelect');
+        const weeksAgo = periodSelect.selectedIndex;
+
+        const response = await fetch(`/health/body_data_json/?weeks_ago=${weeksAgo}`);
+        const data = await response.json();
+
+        console.log('受信データ:', data);  // ✅ デバッグ用
+
+        document.getElementById('periodLabel').textContent = data.period_label;
+
+        const chartCanvas = document.getElementById('chartCanvas');
+        const noDataMessage = document.getElementById('noDataMessage');
+
+        const hasData = data.heart_rate.some(v => v !== null) || data.temperature.some(v => v !== null);
+        if (!hasData) {
+            chartCanvas.style.display = 'none';
+            noDataMessage.style.display = 'block';
+            return;
+        }
+
+        chartCanvas.style.display = 'block';
+        noDataMessage.style.display = 'none';
+
+        // ✅ データ割り当て（順番を確認）
+        healthChart.data.labels = data.labels;
+        healthChart.data.datasets[0].data = data.heart_rate;    // dataset[0] = 心拍数
+        healthChart.data.datasets[1].data = data.temperature;   // dataset[1] = 体温
+        
+        console.log('心拍数データ:', data.heart_rate);
+        console.log('体温データ:', data.temperature);
+        
+        healthChart.update();
+    }
+
+    // メッセージ
+    function showRandomMessage() {
+        const messages = [
+            "体調管理はバッチリですか？",
+            "無理せず、しっかり休みましょう！",
+            "バランスの取れた生活を続けましょう！"
+        ];
+        const i = Math.floor(Math.random() * messages.length);
+        document.getElementById('characterMessage').textContent = messages[i];
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeChart();
+        updateData();
+        showRandomMessage();
+    });
+    </script>
+</body>
+</html>

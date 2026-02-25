@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #4a90e2;
+            color: white;
+            padding: 15px 20px;
+            width: 100%;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 20;
+            box-sizing: border-box;
+        }
+
+        .menu-icon {
+            cursor: pointer; user-select: none; padding: 5px;
+            width: 30px; height: 22px; position: relative; z-index: 21;
+        }
+        .menu-icon span {
+            display: block; position: absolute; width: 100%; height: 3px;
+            background-color: white; border-radius: 3px;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        .menu-icon span:nth-child(1) { top: 0; }
+        .menu-icon span:nth-child(2) { top: 9.5px; }
+        .menu-icon span:nth-child(3) { top: 19px; }
+        .menu-icon.active span:nth-child(1) { top: 9.5px; transform: rotate(45deg); }
+        .menu-icon.active span:nth-child(2) { opacity: 0; }
+        .menu-icon.active span:nth-child(3) { top: 9.5px; transform: rotate(-45deg); }
+
+        .title {
+            font-size: 22px; font-weight: bold; text-align: center;
+            flex-grow: 1; margin-left: 60px;
+        }
+
+        .logout-btn {
+            background-color: white; color: #4a90e2; border: none;
+            padding: 8px 15px; border-radius: 6px; font-size: 14px;
+            font-weight: bold; cursor: pointer; transition: 0.3s;
+        }
+        .logout-btn:hover { background-color: #e3efff; }
+
+        .side-menu {
+            position: absolute; top: 60px; left: 0; width: 230px;
+            background-color: white; box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            border-top: 1px solid #e0e0e0; display: none;
+            flex-direction: column; z-index: 10;
+        }
+         .side-menu a {
+            padding: 15px 20px; text-decoration: none; color: #333;
+            border-bottom: 1px solid #eee; transition: 0.2s;
+        }
+        .side-menu a:hover { background-color: #f0f6ff; color: #4a90e2; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="menu-icon" onclick="toggleMenu(this)">
+            <span></span><span></span><span></span>
+        </div>
+        <div class="title">NASシステム</div>
+        <button class="logout-btn" onclick="logout()">ログアウト</button>
+    </header>
+
+    <nav class="side-menu" id="menu">
+        <a href="{% url 'custom_admin:admin_info' %}">管理者情報</a>
+    <a href="{% url 'custom_admin:user_list' %}">利用者情報一覧</a>
+    <a href="{% url 'helpdesk:inquiry_page' %}">お問い合わせ一覧</a>
+    <a href="{% url 'helpdesk:admin_help' %}">ヘルプ設定</a>
+    <a href="{% url 'custom_admin:access_log' %}">アクセスログ</a>
+    </nav>
+
+   
+
+    <script>
+        function toggleMenu(icon) {
+            const menu = document.getElementById("menu");
+            menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
+            icon.classList.toggle("active");
+        }
+
+        function logout() {
+            if (confirm("ログアウトしてもよろしいですか？")) {
+                window.location.href = "{% url 'accounts:logout' %}";
+            }
+        }
+    </script>
+
+</body>
+</html>

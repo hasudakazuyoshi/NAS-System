@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>お問い合わせ返信 - NASシステム</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background-color: #E6E6FA;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+     header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #4a90e2;
+      color: white;
+      padding: 15px 20px;
+      width: 100%;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      position: relative;
+      z-index: 20;
+      box-sizing: border-box;
+      flex-shrink: 0;
+    }
+
+    .menu-icon {
+      cursor: pointer; user-select: none; padding: 5px;
+      width: 30px; height: 22px; position: relative; z-index: 21;
+    }
+    .menu-icon span {
+      display: block; position: absolute; width: 100%; height: 3px;
+      background-color: white; border-radius: 3px;
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+    .menu-icon span:nth-child(1) { top: 0; }
+    .menu-icon span:nth-child(2) { top: 9.5px; }
+    .menu-icon span:nth-child(3) { top: 19px; }
+    .menu-icon.active span:nth-child(1) { top: 9.5px; transform: rotate(45deg); }
+    .menu-icon.active span:nth-child(2) { opacity: 0; }
+    .menu-icon.active span:nth-child(3) { top: 9.5px; transform: rotate(-45deg); }
+
+    .title {
+      font-size: 22px; font-weight: bold; text-align: center;
+      flex-grow: 1; margin-left: 60px;
+    }
+
+    .logout-btn {
+      background-color: white; color: #4a90e2; border: none;
+      padding: 8px 15px; border-radius: 6px; font-size: 14px;
+      font-weight: bold; cursor: pointer; transition: 0.3s;
+    }
+    .logout-btn:hover { background-color: #e3efff; }
+
+    .side-menu {
+      position: absolute; top: 60px; left: 0; width: 230px;
+      background-color: white; box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      border-top: 1px solid #e0e0e0; display: none;
+      flex-direction: column; z-index: 10;
+    }
+    .side-menu a {
+      padding: 15px 20px; text-decoration: none; color: #333;
+      border-bottom: 1px solid #eee; transition: 0.2s;
+    }
+    .side-menu a:hover { background-color: #f0f6ff; color: #4a90e2; }
+
+
+    .content {
+      width: 90%;
+      max-width: 700px;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+      box-sizing: border-box;
+      flex-grow: 1;
+      justify-content: space-between;
+      overflow: hidden;
+      height: calc(100vh - 60px);
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: flex-start;
+      width: 100%;
+      margin-bottom: 10px;
+      flex-shrink: 0;
+    }
+
+    .back-button {
+      background-color: #f1f1f1; border: 1px solid #ccc; padding: 8px 16px;
+      border-radius: 6px; cursor: pointer; font-size: 14px; transition: 0.2s;
+    }
+    .back-button:hover { background-color: #e0e0e0; }
+
+    .chat-container {
+      width: 100%;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      flex-grow: 1;
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100% - 100px);
+      min-height: 200px;
+    }
+
+    .message {
+      margin-bottom: 15px;
+      display: flex;
+      width: 100%;
+    }
+
+    .user-message { justify-content: flex-start; }
+    .admin-message { justify-content: flex-end; }
+
+    .message-content {
+        display: flex;
+        flex-direction: column;
+        max-width: 70%;
+    }
+    .user-message .message-content { align-items: flex-start; }
+    .admin-message .message-content { align-items: flex-end; }
+
+    .message-bubble {
+      padding: 10px 15px;
+      border-radius: 15px;
+      word-wrap: break-word;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .user-bubble {
+      background-color: #f1f1f1;
+      color: #333;
+      border-bottom-left-radius: 3px;
+    }
+    .admin-bubble {
+        background-color: #8DE04A;
+        color: #000;
+        border-bottom-right-radius: 3px;
+        position: relative;
+        padding-right: 25px;
+    }
+
+     .delete-msg-btn {
+        position: absolute;
+        top: 2px;
+        right: 5px;
+        font-size: 14px;
+        font-weight: bold;
+        color: rgba(0,0,0,0.3);
+        cursor: pointer;
+        padding: 2px;
+        line-height: 1;
+        border-radius: 50%;
+    }
+    .delete-msg-btn:hover {
+        color: rgba(0,0,0,0.7);
+        background-color: rgba(0,0,0,0.1);
+    }
+
+    .message-info {
+        font-size: 11px;
+        color: #888;
+        margin-top: 5px;
+        white-space: nowrap;
+    }
+    .user-message .message-info { margin-left: 5px;}
+    .admin-message .message-info { margin-right: 5px;}
+
+    .reply-form-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      background-color: #f8f8f8;
+      border-top: 1px solid #eee;
+      flex-shrink: 0;
+    }
+
+    .reply-form-area textarea {
+      flex-grow: 1;
+      min-height: 20px;
+      height: auto;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      font-size: 14px;
+      font-family: "Segoe UI", sans-serif;
+      resize: none;
+      box-sizing: border-box;
+      max-height: 100px;
+      overflow-y: auto;
+    }
+
+    .submit-button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      background-color: #007bff;
+      color: white;
+      transition: 0.2s;
+      flex-shrink: 0;
+    }
+    .submit-button:hover { background-color: #0069d9;
+    }
+    .chat-subject {
+      width: 100%;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+      padding: 8px 0;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+  </style>
+</head>
+<body>
+
+
+
+  
+  <div class="title">NASシステム - 返信</div>
+  <div class="content">
+    <div class="top-bar">
+      <button class="back-button" onclick="location.href='{% url 'helpdesk:inquiry_page' %}'">← 一覧に戻る</button>
+
+    </div>
+    <div class="chat-subject" id="chatSubject"></div>
+    <div class="chat-container" id="chatMessages">
+    </div>
+
+    <form id="replyForm" class="reply-form-area" onsubmit="submitForm(event)">
+      <textarea id="replyText" placeholder="返信を入力..." rows="1"></textarea>
+      <button type="submit" class="submit-button">送信</button>
+    </form>
+
+    <input type="hidden" id="contactIdHidden">
+    <input type="hidden" id="userIdHidden">
+
+  </div>
+
+  <script>
+  const USER_ID = "{{ user_id }}";
+  // ===== 自動リサイズ関数（先に定義） =====
+  function autoResizeTextarea() {
+    this.style.height = 'auto';
+    this.style.height = this.scrollHeight + 'px';
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+  // 現在のURLパスから inquiryId を取得
+   const pathParts = window.location.pathname.split('/');
+  const inquiryId = pathParts[pathParts.length - 2];  // 例: "/helpdesk/detail/I001/" → "I001"
+  const userId = USER_ID;  // 一時的に固定値（本来はログイン情報から取得）
+
+  document.getElementById('contactIdHidden').value = inquiryId;
+  document.getElementById('userIdHidden').value = userId;
+
+  try {
+    // ✅ 正しいURL：2階層のパラメータ
+    const response = await fetch(`/helpdesk/api/inquiries/${USER_ID}/${inquiryId}/`);
+    if (!response.ok) throw new Error('データ取得エラー');
+    
+    // ← inquiry.detail を使うように変更（次の修正②で説明）
+    const result = await response.json();
+    const inquiry = result.detail || result.data || result;
+    if (!inquiry) throw new Error("問い合わせデータが存在しません");
+    document.querySelector('.title').textContent = `${inquiry.userID} さん - 返信`;
+    renderInquiry(inquiry);
+
+  } catch (error) {
+    console.error('問い合わせデータ読み込み失敗:', error);
+    document.getElementById('chatMessages').innerHTML =
+      '<p style="color: red; text-align: center;">お問い合わせデータの取得に失敗しました。</p>';
+    document.getElementById('replyText').disabled = true;
+    document.querySelector('.submit-button').disabled = true;
+  }
+
+  const textarea = document.getElementById('replyText');
+  textarea.addEventListener('input', autoResizeTextarea);
+  autoResizeTextarea.call(textarea);
+});
+
+
+
+  function renderInquiry(inquiry) {
+    const chatContainer = document.getElementById('chatMessages');
+    const subjectBox = document.getElementById('chatSubject');
+    chatContainer.innerHTML = '';
+    subjectBox.textContent = `件名：${inquiry.inquiryname || "（件名なし）"}`;
+
+
+    // サーバーのレスポンスでは "thread_history" が使われている
+  const threadData = inquiry.thread || inquiry.thread_history || [];
+
+  if (!threadData.length) {
+    chatContainer.innerHTML = '<p style="text-align:center; color:#666;">メッセージ履歴がありません。</p>';
+    return;
+  }
+
+  threadData.forEach((msg, index) => {
+    if (msg.sender === 'admin' || msg.type === 'admin') {
+      displayAdminMessage(msg.message, new Date(msg.timestamp));
+    } else if (msg.sender === 'user' || msg.type === 'user') {
+      displayUserMessage({
+        // 件名は最初のメッセージだけ表示
+        body: msg.message || "内容なし",
+        date: msg.timestamp || inquiry.time
+      });
+    }
+  });
+
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+  function displayUserMessage(contact) {
+    const chatContainer = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message user-message';
+    const dateObj = new Date(contact.date);
+    const localTime = dateObj.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+
+    messageDiv.innerHTML = `
+      <div class="message-content">
+        <div class="message-bubble user-bubble">
+          ${contact.body.replace(/\n/g, '<br>')}
+        </div>
+        <div class="message-info">${localTime}</div>
+      </div>
+    `;
+    chatContainer.appendChild(messageDiv);
+  }
+
+  function displayAdminMessage(text, timestamp) {
+    const chatContainer = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message admin-message';
+    const localTime = timestamp.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+
+    messageDiv.innerHTML = `
+      <div class="message-content">
+        <div class="message-bubble admin-bubble">
+          ${text.replace(/\n/g, '<br>')}
+        </div>
+        <div class="message-info">${localTime}</div>
+      </div>
+    `;
+    chatContainer.appendChild(messageDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+
+  async function submitForm(event) {
+    event.preventDefault();
+
+    const text = document.getElementById('replyText').value;
+    const inquiryId = document.getElementById('contactIdHidden').value;
+    const userId = document.getElementById('userIdHidden').value;
+
+    if (text.trim() === "") {
+      alert("返信内容を入力してください。");
+      return;
+    }
+
+    const payload = { message: text };
+
+    // ✅ DjangoのCSRFトークンを取得
+    const csrftoken = getCookie('csrftoken');
+
+    try {
+      const response = await fetch(`/helpdesk/api/inquiries/${userId}/${inquiryId}/response/`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken  // ← ここが重要！
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) throw new Error('送信エラー');
+      const result = await response.json();
+
+      displayAdminMessage(text, new Date());
+      document.getElementById('replyText').value = '';
+      autoResizeTextarea.call(document.getElementById('replyText'));
+    } catch (error) {
+      alert('返信の送信に失敗しました');
+      console.error(error);
+    }
+  }
+
+  // Django公式推奨：CSRFトークンをCookieから取得する関数
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        // Cookie名が一致した場合に値を返す
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  </script>
+
+</body>
+</html>

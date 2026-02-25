@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NASシステム - 新規利用者登録</title>
+  <style>
+    body {
+      font-family: "游ゴシック", "Yu Gothic", sans-serif;
+      background-color: #fce2c4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: #fce2c4;
+      padding: 40px 50px;
+      border-radius: 15px;
+      width: 360px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      color: #333;
+    }
+
+    .button-group {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 35px;
+    }
+
+    .tab-button {
+      flex: 1;
+      margin: 0 5px;
+      padding: 10px 0;
+      border: 2px solid #0078D7;
+      border-radius: 0;
+      background-color: white;
+      color: #0078D7;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .tab-button.active {
+      background-color: #0078D7;
+      color: white;
+    }
+
+    .tab-button:hover {
+      opacity: 0.85;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      margin-top: 15px;
+      color: #444;
+      font-weight: bold;
+    }
+
+    .input-group {
+      width: 100%;
+      margin-bottom: 35px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    .register-button {
+      width: 100%;
+      padding: 12px 0;
+      background-color: #28a745; 
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .register-button:hover {
+      background-color: #1e7e34; 
+    }
+    .error-message {
+            color: white;
+            background-color: #dc3545; /* 赤色 */
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+            font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🍃NASシステム</h1>
+
+    {% if error_message %}
+        <div class="error-message">
+            {{ error_message }}
+        </div>
+    {% endif %}
+
+    <div class="button-group">
+      <button id="loginTab" class="tab-button">ログイン</button>
+      <button id="registerTab" class="tab-button active">新規利用者登録</button>
+    </div>
+
+    <form method="post" action="{% url 'accounts:pre_register' %}">
+
+    {% csrf_token %}
+    <div class="input-group">
+      <label for="email">メールアドレス</label>
+      <input type="email" id="email" name="email" placeholder="メールアドレスを入力してください">
+    </div>
+
+    <button class="register-button">登録</button>
+  </div>
+
+  <script>
+    const LOGIN_URL = "{% url 'accounts:login' %}";
+    const loginTab = document.getElementById("loginTab");
+    const registerTab = document.getElementById("registerTab");
+
+    loginTab.addEventListener("click", () => {
+      window.location.href = LOGIN_URL;
+    });
+  </script>
+</body>
+</html>
+

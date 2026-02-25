@@ -1,0 +1,27 @@
+{% extends "mail/base_email.html" %}
+
+{% block title %}メールアドレス認証{% endblock %}
+{% block header %}【NASシステム】メールアドレスの確認{% endblock %}
+
+{% block content %}
+<p>NASシステムへのご登録ありがとうございます。</p>
+<p>まだ本登録は完了していません。<br>以下のボタンをクリックして、メールアドレスの認証を完了してください。</p>
+
+<p style="text-align: center; margin: 30px 0;">
+    <a href="{{ verification_url }}" 
+       style="display: inline-block; background-color: #667eea; color: white !important;
+              padding: 15px 40px; border-radius: 25px; font-size: 16px; font-weight: bold;
+              text-decoration: none;">
+        📧 メールアドレスを確認する
+    </a>
+</p>
+
+<p style="font-size: 14px; color: #888;">
+※ このメールにお心当たりがない場合は、お手数ですが削除してください。<br>
+※ リンクの有効期限は24時間です。
+</p>
+{% endblock %}
+```
+
+### 2. verification_email.txt
+```

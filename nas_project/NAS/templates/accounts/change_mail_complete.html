@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>メールアドレス変更完了 - NASシステム</title>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background-color: #FEF3EC;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .icon-container {
+            width: 100px;
+            height: 100px;
+            background-color: #C8E6C9;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .checkmark {
+            width: 40px;
+            height: 60px;
+            border-bottom: 8px solid white;
+            border-right: 8px solid white;
+            transform: rotate(45deg);
+        }
+
+        .message {
+            font-size: 26px;
+            font-weight: bold;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .sub-message {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 40px;
+        }
+
+        .ok-button-container {
+            background-color: #ccc;
+            padding: 2px; 
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .ok-button {
+            width: 120px;
+            height: 45px;
+            background-color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .ok-button:hover {
+            background-color: #f0f0f0;
+        }
+
+        .ok-button:active {
+            box-shadow: none;
+            transform: translateY(1px);
+        }
+
+        .email-display {
+            font-weight: bold;
+            color: #222;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="icon-container">
+        <div class="checkmark"></div>
+    </div>
+
+    <p class="message">メールアドレスの変更が完了しました</p>
+    <p class="sub-message">
+        新しいメールアドレス：<span class="email-display">{{ new_email }}</span><br>
+        次回ログインからこのメールアドレスをご使用ください。
+    </p>
+
+    <div class="ok-button-container">
+        <a href="{% url 'accounts:login' %}">
+            <button class="ok-button">OK</button>
+        </a>
+    </div>
+
+</body>
+</html>

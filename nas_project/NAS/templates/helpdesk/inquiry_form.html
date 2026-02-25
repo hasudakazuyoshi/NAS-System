@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お問い合わせフォーム - NASシステム</title>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background-color: #FEF1E7;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .content-wrapper {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .back-button {
+            background-color: #f1f1f1;
+            border: 1px solid #ccc;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+            color: #333;
+            font-weight: normal;
+        }
+        .back-button:hover { 
+            background-color: #e0e0e0; 
+        }
+
+        .user-info {
+            color: #666;
+            font-size: 14px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 0;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        .new-contact-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 25px;
+            background-color: #4a90e2;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            color: white;
+            cursor: pointer;
+            box-sizing: border-box;
+            transition: background-color 0.2s;
+        }
+        .new-contact-btn:hover {
+            background-color: #3a7bc8;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            height: calc(100vh - 160px); 
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .history-list {
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-bottom: 2px solid #ccc;
+            flex-shrink: 0;
+            overflow-y: auto;
+            max-height: 200px;
+        }
+        .history-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: white;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .history-item:hover {
+            border-color: #4a90e2;
+            background-color: #f8f9fa;
+        }
+        .history-item.active {
+            border-color: #4a90e2;
+            background-color: #e8f0ff;
+        }
+        .history-title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .history-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .history-date {
+            font-size: 12px;
+            color: #777;
+        }
+        .status-badge {
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            color: white;
+            font-weight: bold;
+        }
+        .status-pending { background-color: #dc3545; }
+        .status-resolved { background-color: #28a745; }
+        .status-unhandled { background-color: #ffc107; color: #333;}
+
+        .chat-area {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .message-bubble {
+            padding: 10px 15px;
+            border-radius: 18px;
+            max-width: 80%;
+            line-height: 1.5;
+        }
+        .admin-msg {
+            background-color: #f0f0f0;
+            border-bottom-left-radius: 4px;
+            align-self: flex-start;
+        }
+        .user-msg {
+            background-color: #4a90e2;
+            color: white;
+            border-bottom-right-radius: 4px;
+            align-self: flex-end;
+        }
+        .system-msg {
+            text-align: center;
+            font-size: 13px;
+            color: #777;
+            width: 100%;
+        }
+        
+        .resolve-section {
+            text-align: center;
+            margin: 15px;
+            background-color: #fffaf3;
+            border: 1px solid #f0dca6;
+            border-radius: 10px;
+            padding: 12px;
+            display: none;
+        }
+        .resolve-question {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .resolve-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        .resolve-btn {
+            padding: 6px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.2s;
+            border: 2px solid transparent;
+        }
+        .resolve-btn.yes {
+            background-color: #28a745;
+            color: white;
+            border: none;
+        }
+        .resolve-btn.yes:hover {
+            background-color: #218838;
+        }
+        .resolve-btn.no {
+            background-color: white;
+            color: #007bff;
+            border-color: #007bff;
+        }
+        .resolve-btn.no:hover {
+            background-color: #e7f0ff;
+        }
+
+        .input-area {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #ddd;
+            background-color: #f9f9f9;
+            flex-shrink: 0;
+        }
+        .input-box {
+            flex-grow: 1;
+            padding: 10px 15px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            margin-right: 10px;
+        }
+        .send-btn {
+            background-color: #4a90e2;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .send-btn:hover {
+            background-color: #3a7bc8;
+        }
+        .send-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .modal-select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .modal-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .modal-btn.cancel { 
+            background-color: #f0f0f0; 
+        }
+        .modal-btn.confirm { 
+            background-color: #4a90e2; 
+            color: white; 
+        }
+        .modal-btn:hover {
+            opacity: 0.9;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="content-wrapper">
+        <div class="top-bar">
+            <button class="back-button" onclick="location.href='{% url 'helpdesk:help' %}'">← 戻る</button>
+            <span class="user-info">ユーザーID: <strong>{{ user_id }}</strong></span>
+        </div>
+
+        <h2>お問い合わせフォーム</h2>
+
+        <button class="new-contact-btn" id="showModalBtn">📝 新規お問い合わせ</button>
+        
+        <div class="container">
+            <div class="history-list" id="historyList">
+                <div class="empty-state">読み込み中...</div>
+            </div>
+
+            <div class="chat-area" id="chatArea">
+                <div class="system-msg">履歴を選択するか、新規お問い合わせを作成してください。</div>
+            </div>
+
+            <div class="resolve-section" id="resolveSection">
+                <p class="resolve-question">このお問い合わせは解決しましたか？</p>
+                <div class="resolve-buttons">
+                    <button id="resolveYesBtn" class="resolve-btn yes">はい</button>
+                    <button id="resolveNoBtn" class="resolve-btn no">いいえ</button>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <input type="text" class="input-box" id="messageInput" placeholder="メッセージを入力...">
+                <button class="send-btn" id="sendBtn" disabled>➤</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="newContactModal">
+        <div class="modal-content">
+            <div class="modal-title">お問い合わせ項目を選択</div>
+            <select class="modal-select" id="contactCategory">
+                <option value="パスワードについて">パスワードについて</option>
+                <option value="グラフについて">グラフについて</option>
+                <option value="利用者情報について">利用者情報について</option>
+                <option value="その他">その他</option>
+            </select>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" id="cancelModalBtn">キャンセル</button>
+                <button class="modal-btn confirm" id="confirmModalBtn">決定</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const historyList = document.getElementById('historyList');
+    const chatArea = document.getElementById('chatArea');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const showModalBtn = document.getElementById('showModalBtn');
+    const modal = document.getElementById('newContactModal');
+    const cancelModalBtn = document.getElementById('cancelModalBtn');
+    const confirmModalBtn = document.getElementById('confirmModalBtn');
+    const contactCategory = document.getElementById('contactCategory');
+    const resolveSection = document.getElementById('resolveSection');
+    const USER_ID = "{{ user_id }}";
+    
+    let activeThreadId = null;
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    async function buildHistoryList() {
+        historyList.innerHTML = '<p class="empty-state">読み込み中...</p>';
+        try {
+            const res = await fetch(`/helpdesk/api/inquiries/?user_id=${USER_ID}`);
+            const data = await res.json();
+
+            if (!data.success) {
+                historyList.innerHTML = '<p class="empty-state">履歴の取得に失敗しました。</p>';
+                return;
+            }
+
+            if (data.inquiries.length === 0) {
+                historyList.innerHTML = '<p class="empty-state">まだお問い合わせがありません。<br>新規作成してください。</p>';
+                return;
+            }
+
+            historyList.innerHTML = '';
+            data.inquiries.forEach(inquiry => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.dataset.threadId = inquiry.inquiryID;
+
+                const statusClass =
+                    inquiry.status === '解決済み' ? 'status-resolved' :
+                    inquiry.status === '対応中' ? 'status-pending' :
+                    'status-unhandled';
+
+                item.innerHTML = `
+                    <div class="history-title">${inquiry.inquiryname}</div>
+                    <div class="history-info">
+                        <span class="history-date">${inquiry.time}</span>
+                        <span class="status-badge ${statusClass}">${inquiry.status}</span>
+                    </div>
+                `;
+                item.addEventListener('click', () => loadThread(inquiry.inquiryID, item));
+                historyList.appendChild(item);
+            });
+        } catch (err) {
+            console.error('履歴取得エラー:', err);
+            historyList.innerHTML = `<p class="empty-state">エラー: ${err.message}</p>`;
+        }
+    }
+
+    async function loadThread(inquiryId, itemElement) {
+        activeThreadId = inquiryId;
+        chatArea.innerHTML = '<div class="system-msg">読み込み中...</div>';
+        
+        document.querySelectorAll('.history-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        if (itemElement) {
+            itemElement.classList.add('active');
+        } else {
+            const foundItem = document.querySelector(`.history-item[data-thread-id="${inquiryId}"]`);
+            if (foundItem) foundItem.classList.add('active');
+        }
+
+        try {
+            const res = await fetch(`/helpdesk/api/inquiries/${USER_ID}/${inquiryId}/`);
+            const data = await res.json();
+
+            if (!data || !data.success || !data.detail) {
+                chatArea.innerHTML = '<div class="system-msg">❌ データ取得に失敗しました。</div>';
+                resolveSection.style.display = "none";
+                return;
+            }
+
+            const threadHistory = Array.isArray(data.detail.thread_history) 
+                ? data.detail.thread_history 
+                : [];
+
+            chatArea.innerHTML = "";
+
+            threadHistory.forEach((msg) => {
+                const bubble = document.createElement('div');
+                
+                if (msg.sender === "system") {
+                    bubble.className = "system-msg";
+                    bubble.textContent = msg.message;
+                } else {
+                    bubble.classList.add("message-bubble");
+                    if (msg.sender === "admin") {
+                        bubble.classList.add("admin-msg");
+                    } else if (msg.sender === "user") {
+                        bubble.classList.add("user-msg");
+                    }
+                    bubble.textContent = msg.message;
+                }
+                
+                chatArea.appendChild(bubble);
+            });
+
+            chatArea.scrollTop = chatArea.scrollHeight;
+
+            const lastMessage = threadHistory.length ? threadHistory[threadHistory.length - 1] : null;
+            const adminIsLastSender = lastMessage?.sender === "admin";
+            const status = data.detail.status;
+
+            if (status === "解決済み") {
+                resolveSection.style.display = "none";
+            } else if (adminIsLastSender) {
+                resolveSection.style.display = "block";
+            } else {
+                resolveSection.style.display = "none";
+            }
+
+        } catch (e) {
+            console.error('スレッド読み込みエラー:', e);
+            chatArea.innerHTML = `<div class="system-msg">❌ 通信エラー: ${e.message}</div>`;
+            resolveSection.style.display = "none";
+        }
+    }
+
+    messageInput.addEventListener('input', () => {
+        sendBtn.disabled = messageInput.value.trim() === '' || !activeThreadId;
+    });
+
+    sendBtn.addEventListener('click', async () => {
+        const text = messageInput.value.trim();
+        if (text === '' || !activeThreadId) return;
+
+        sendBtn.disabled = true;
+
+        try {
+            const response = await fetch(`/helpdesk/api/inquiries/${USER_ID}/${activeThreadId}/response/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCookie("csrftoken"),
+                },
+                body: JSON.stringify({
+                    user_id: USER_ID,
+                    message: text,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                messageInput.value = '';
+                sendBtn.disabled = true;
+                await buildHistoryList();
+                await loadThread(activeThreadId);
+            } else {
+                alert("送信に失敗しました: " + data.message);
+            }
+        } catch (error) {
+            console.error("通信エラー:", error);
+            alert("サーバー通信エラーが発生しました。");
+        } finally {
+            sendBtn.disabled = messageInput.value.trim() === '';
+        }
+    });
+
+    showModalBtn.addEventListener('click', () => { modal.style.display = 'flex'; });
+    cancelModalBtn.addEventListener('click', () => { modal.style.display = 'none'; });
+
+    confirmModalBtn.addEventListener('click', async () => {
+        const newTitle = contactCategory.value;
+        modal.style.display = 'none';
+
+        if (confirm(`「${newTitle}」で新規作成します。よろしいですか？`)) {
+            try {
+                const response = await fetch("/helpdesk/api/inquiries/new/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCookie("csrftoken"),
+                    },
+                    body: JSON.stringify({
+                        user_id: USER_ID,
+                        inquiry_name: newTitle,
+                        initial_message: "新しいお問い合わせを開始しました。"
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert("✅ 新しいお問い合わせを登録しました！");
+                    await buildHistoryList();
+                    
+                    setTimeout(() => {
+                        const newItem = document.querySelector(`[data-thread-id="${data.inquiry_id}"]`);
+                        if (newItem) {
+                            newItem.click();
+                        }
+                    }, 500);
+                } else {
+                    alert("❌ 登録に失敗しました: " + data.message);
+                }
+            } catch (error) {
+                console.error("通信エラー:", error);
+                alert("❌ サーバー通信エラーが発生しました。");
+            }
+        }
+    });
+
+    document.getElementById('resolveYesBtn').addEventListener('click', async () => {
+        if (!activeThreadId) return;
+        if (!confirm("このお問い合わせを『解決済み』としてよろしいですか？")) return;
+
+        try {
+            const res = await fetch(`/helpdesk/api/inquiries/${USER_ID}/${activeThreadId}/close/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCookie("csrftoken"),
+                },
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                alert("✅ 解決済みにしました。ありがとうございました！");
+                resolveSection.style.display = "none";
+                await buildHistoryList();
+                await loadThread(activeThreadId);
+            } else {
+                alert("❌ 更新に失敗しました: " + data.message);
+            }
+        } catch (error) {
+            console.error("エラー:", error);
+            alert("❌ サーバー通信エラーが発生しました。");
+        }
+    });
+
+    document.getElementById('resolveNoBtn').addEventListener('click', () => {
+        alert("引き続き対応いたします。");
+        resolveSection.style.display = "none";
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        buildHistoryList();
+    });
+    </script>
+
+</body>
+</html>

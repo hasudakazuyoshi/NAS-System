@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>メール送信確認 - NASシステム</title>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background-color: #FEF1E7; /* 全体の背景色 */
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            background-color: #FEF1E7;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #555;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        .message-text {
+            font-size: 16px;
+            color: #333;
+            line-height: 1.7;
+            text-align: left;
+            margin-bottom: 30px;
+        }
+
+        .email-display {
+            font-size: 16px;
+            color: #333;
+            text-align: left;
+            border-bottom: 1px solid #555;
+            padding-bottom: 5px;
+            margin-bottom: 40px;
+        }
+        .email-display span {
+            font-weight: bold;
+        }
+
+        .ok-button {
+            padding: 12px 50px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            background: linear-gradient(to bottom, #ffffff, #e0e0e0);
+            border: 2px solid #aaa;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 25px;
+        }
+        .ok-button:hover {
+            background: linear-gradient(to bottom, #f0f0f0, #d0d0d0);
+        }
+
+        .resend-link {
+            font-size: 16px;
+            color: #007bff;
+            text-decoration: underline;
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 0;
+        }
+        .resend-link:hover {
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <h2>メール送信確認</h2>
+        {% if messages %}
+            {% for message in messages %}
+                <p style="color: green;">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
+
+        <p class="message-text">
+            下記メールアドレス宛にメールアドレスを
+            確認用のURLを送信しました
+        </p>
+
+        <div class="email-display">
+            Email: <span>{{ email}}</span>
+        </div>
+
+        <button class="ok-button" onclick="location.href='{% url 'accounts:login' %}'">OK</button>
+
+        <div>
+            <form action="{% url 'accounts:resend_email_change' %}?purpose=change" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="email" value="{{ email }}">
+                <button type="submit" class="resend-link">再送信</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function resendEmail() {
+            alert('確認メールを再送信しました。');
+        }
+    </script>
+
+</body>
+</html>

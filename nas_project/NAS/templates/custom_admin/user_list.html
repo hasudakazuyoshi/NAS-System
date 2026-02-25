@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>利用者情報一覧</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background-color: #f5f6fa;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0;
+    }
+
+    
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #4a90e2;
+      color: white;
+      padding: 15px 20px;
+      width: 100%;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      position: relative;
+      z-index: 20; 
+    }
+
+    
+    .title {
+      font-size: 22px;
+      font-weight: bold;
+      text-align: center;
+      flex-grow: 1;
+      margin-left: 60px;
+    }
+
+    .logout-btn {
+      background-color: white;
+      color: #4a90e2;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: bold; 
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .logout-btn:hover {
+      background-color: #e3efff;
+    }
+
+    .side-menu {
+      position: absolute;
+      top: 60px;
+      left: 0;
+      width: 230px;
+      background-color: white;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      border-top: 1px solid #e0e0e0;
+      display: none;
+      flex-direction: column;
+      z-index: 10;
+    }
+
+    .side-menu a {
+      padding: 15px 20px;
+      text-decoration: none;
+      color: #333;
+      border-bottom: 1px solid #eee;
+      transition: 0.2s;
+    }
+
+    .side-menu a:hover {
+      background-color: #f0f6ff;
+      color: #4a90e2;
+    }
+
+    .content {
+      width: 80%;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .back-button {
+      background-color: #f1f1f1;
+      border: 1px solid #ccc;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.2s;
+    }
+
+    .back-button:hover {
+      background-color: #e0e0e0;
+    }
+
+    .search-area {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      width: 100%;
+    }
+
+    input[type="text"] {
+      padding: 8px;
+      width: 250px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .search-button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      background-color: #007bff;
+      color: white;
+      transition: 0.2s;
+    }
+
+    .search-button:hover {
+      background-color: #0069d9;
+    }
+
+    .delete-button {
+      margin-bottom: 20px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      background-color: #dc3545;
+      color: white;
+      transition: 0.2s;
+    }
+
+    .delete-button:hover {
+      background-color: #c82333;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background-color: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    th, td {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+  </style>
+</head>
+<body>
+{% include 'common/admin_header.html' %}
+
+
+
+  
+  <div class="content">
+    <div class="top-bar">
+      <button class="back-button" onclick="location.href='{% url 'custom_admin:admin_home' %}'">← 戻る</button>
+    </div>
+
+    <div class="search-area">
+      <input type="text" id="searchInput" placeholder="利用者IDを入力" oninput="searchUser()">
+      <button class="search-button" onclick="searchUser()">検索</button>
+    </div>
+
+    {# 🚨 元の単独の削除ボタンを削除します #}
+    {# <button class="delete-button" onclick="confirmDelete()">削除</button> #}
+    
+    <form id="deleteForm" class="delete-form" method="POST" action="{% url 'custom_admin:user_delete' %}">
+    {% csrf_token %}
+    <input type="hidden" name="delete_user_ids" id="deleteUserIdInput" value="">
+    <button type="button" class="delete-button" onclick="confirmDelete()">削除</button>
+    </form>
+
+    <table id="userTable">
+      <thead>
+        <tr>
+          <th>選択</th>
+          <th>利用者ID</th>
+          <th>メールアドレス</th>
+          <th>ウェアラブル端末機器</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        {% if user_list %}
+            {% for user_data in user_list %}
+                <tr data-user-id="{{ user_data.user_id }}">
+                    <td><input type="checkbox" value="{{ user_data.user_id }}"></td> {# name="delete_ids" は不要 #}
+                    <td>{{ user_data.user_id }}</td> 
+                    <td>{{ user_data.email }}</td>
+                    <td>{{ user_data.device_name|default:"情報なし" }}</td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr><td colspan="5" style="text-align:center; color:gray;">登録されている利用者がいません。</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+      // 💡 修正 4: 初期表示の際に動的データを取得し、JavaScriptの操作用データとして保持
+        // Djangoのテンプレートからデータを取得し、デモ用の静的データを置き換える
+      const userListData = [
+            {% for user_data in user_list %}
+            {
+                id: '{{ user_data.user_id }}',
+                email: '{{ user_data.email }}',
+                is_active: {{ user_data.is_active|yesno:"true,false" }},
+                device_name: '{{ user_data.device_name|default:"" }}',
+                rowHtml: document.querySelector('tr[data-user-id="{{ user_data.user_id }}"]').outerHTML
+            },
+            {% endfor %}
+        ];
+    const originalRows = Array.from(document.querySelectorAll("#tableBody tr")); 
+
+    
+    function toggleMenu(icon) {
+      const menu = document.getElementById("menu");
+      menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
+      icon.classList.toggle("active");
+    }
+
+    
+    
+
+    
+    function searchUser() {
+      const keyword = document.getElementById("searchInput").value.trim().toLowerCase();
+      const tbody = document.getElementById("tableBody");
+
+      tbody.innerHTML = "";
+
+      if (keyword === "") {
+        originalRows.forEach(row => tbody.appendChild(row.cloneNode(true)));
+        return;
+      }
+
+      const filtered = originalRows.filter(row => {
+        const id = row.cells[1].textContent.toLowerCase();
+        return id.includes(keyword);
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:gray;">該当する利用者が見つかりません</td></tr>`;
+      } else {
+        filtered.forEach(row => tbody.appendChild(row.cloneNode(true)));
+      }
+    }
+
+    
+    function confirmDelete() {
+        const checkboxes = document.querySelectorAll('#tableBody input[type="checkbox"]:checked'); 
+        if (checkboxes.length === 0) {
+            alert("削除する利用者を選択してください。");
+            return;
+        }
+
+        // 💡 選択された全てのIDをカンマ区切り文字列として取得
+        const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+        const idsText = selectedIds.join(", ");
+        
+        const confirmResult = confirm(`選択されたID（${idsText}）のアカウントを本当に無効化しますか？`);
+
+        if (confirmResult) {
+            const deleteForm = document.getElementById('deleteForm');
+            const deleteUserIdInput = document.getElementById('deleteUserIdInput');
+
+            // 💡 選択された全てのIDをカンマ区切りで隠しフィールドに格納
+            deleteUserIdInput.value = selectedIds.join(',');
+
+            // 💡 フォームを送信
+            deleteForm.submit();
+
+            // 🚨 注意: 以下のクライアント側の削除ロジックはDjango連携においては不要かつ誤動作の原因となるため削除します。
+            // checkboxes.forEach(cb => { cb.closest("tr").remove(); });
+            // for (let i = originalRows.length - 1; i >= 0; i--) { ... }
+            // alert("選択された利用者を削除しました。");
+            // searchUser(); 
+        }
+    }
+</script>
+
+</body>
+</html>

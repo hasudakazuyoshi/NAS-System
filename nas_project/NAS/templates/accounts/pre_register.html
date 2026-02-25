@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仮登録完了 - NASシステム</title>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background-color: #FEF3EC;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .message-container {
+            margin-bottom: 50px;
+        }
+
+        .main-message {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .sub-message {
+            font-size: 20px;
+            color: #555;
+            line-height: 1.7;
+        }
+
+        .resend-link {
+            font-size: 18px;
+            color: #007bff;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .resend-link:hover {
+            color: #0056b3;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="message-container">
+        <p class="main-message">仮登録が完了しました</p>
+        <p class="sub-message">メールアプリを開き本人確認を<br>行ってください</p>
+    </div>
+    <form id="resendForm" method="post" action="{% url 'accounts:resend_verification' %}?purpose=register">
+        {% csrf_token %}
+        <input type="hidden" name="email" value="{{ email }}">
+    
+        <button type="submit" class="resend-link" style="border: none; background: none; padding: 0;">再送信</button>
+    </form>
+    <script>
+        
+    </script>
+
+</body>
+</html>

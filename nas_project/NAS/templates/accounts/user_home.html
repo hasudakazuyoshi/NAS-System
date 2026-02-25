@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>利用者ホーム</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background-color: #FEF1E7;
+      margin: 0;
+      min-height: 100vh;
+      padding: 0;
+    }
+    .container {
+      text-align: center;
+      background-color: #fff;
+      padding: 40px 50px;
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+      margin-top: 100px;
+      margin: 100px auto 0;
+      max-width: 400px;
+      width: 90%;
+      
+    }
+    
+    /* --- 猫アイコン用のスタイルを追加 --- */
+    .mascot-icon {
+        font-size: 50px; /* アイコンのサイズ */
+        color: #8BC34A; /* ボタンと色を合わせる */
+        margin-bottom: 20px;
+    }
+    /* ---------------------------------- */
+
+    h1 {
+      font-size: 26px;
+      color: #333;
+      margin-top: 0;
+      margin-bottom: 30px;
+      font-weight: 600;
+    }
+
+    .button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 250px;
+      margin: 18px auto;
+      padding: 16px;
+      font-size: 19px;
+      color: white;
+      background-color: #8BC34A;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease-out;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .button:hover {
+      background-color: #7CB342;
+      transform: translateY(-3px);
+      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .icon {
+      margin-right: 12px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+{% include 'common/user_header.html' %}
+  <div class="container">
+    
+    <div class="mascot-icon">
+        <i class="fas fa-cat"></i>
+    </div>
+    
+    <h1>利用者ホーム</h1>
+    <button class="button" onclick="location.href='{% url 'accounts:user_info' %}'">利用者情報</button>
+    <button class="button" onclick="location.href='{% url 'health:body_data_chart'  %}'"><span class="icon">📊</span>グラフ</button>
+    <button class="button" onclick="location.href='{% url 'helpdesk:help' %}'"><span class="icon">❓</span>ヘルプ</button>
+  </div>
+</body>
+</html>

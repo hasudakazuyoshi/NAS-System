@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>利用者登録 - NASシステム</title>
+
+  <!-- ✅ CSSを適用 -->
+  <style>
+    /* -------------------------------------- */
+    /* 共通スタイル */
+    /* -------------------------------------- */
+    .text-danger {
+        color: #dc3545;
+        font-size: 13px;
+        margin-top: 5px;
+    }
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background-color: #f5f6fa;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center; 
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .content {
+      width: 90%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 0;
+      box-sizing: border-box;
+    }
+
+    h2 {
+      width: 100%;
+      text-align: center;
+      color: #333;
+      margin-top: 0;
+      margin-bottom: 30px; 
+    }
+
+    .form-wrapper {
+      width: 100%;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      box-sizing: border-box;
+    }
+
+    /* -------------------------------------- */
+    /* フォームグリッド */
+    /* -------------------------------------- */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr); 
+      gap: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .form-group label .required {
+      color: #dc3545;
+      font-size: 12px;
+      margin-left: 5px;
+    }
+
+    /* -------------------------------------- */
+    /* 入力欄スタイル */
+    /* -------------------------------------- */
+    .form-control {
+        width: 100%; 
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 14px;
+        font-family: "Segoe UI", sans-serif;
+        box-sizing: border-box;
+    }
+
+    .form-group select.form-control {
+        appearance: none;
+        background-color: #fff;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 16px 12px;
+    }
+
+    /* -------------------------------------- */
+    /* パスワード表示切替 */
+    /* -------------------------------------- */
+    .password-wrapper {
+      position: relative;
+    }
+
+    .password-wrapper input.form-control {
+        padding-right: 40px !important;
+    }
+
+    .toggle-eye {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      cursor: pointer;
+      user-select: none;
+      font-size: 18px;
+      color: #888;
+    }
+
+    .toggle-eye:hover {
+      color: #333;
+    }
+
+    /* -------------------------------------- */
+    /* ウェアラブル機器検索 */
+    /* -------------------------------------- */
+    .device-search {
+      display: flex;
+      gap: 10px;
+    }
+
+    .device-search .form-control {
+      flex-grow: 1;
+    }
+
+    .device-search button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      background-color: #6c757d;
+      color: white;
+      transition: 0.2s;
+      flex-shrink: 0;
+    }
+
+    .device-search button:hover {
+      background-color: #5a6268;
+    }
+
+    /* -------------------------------------- */
+    /* エラーメッセージとボタン */
+    /* -------------------------------------- */
+    #errorMessage {
+      color: #dc3545;
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .submit-button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      background-color: #007bff;
+      color: white;
+      transition: 0.2s;
+    }
+
+    .submit-button:hover {
+      background-color: #0069d9;
+    }
+  </style>
+</head>
+<body>
+<div class="content">
+<h2>利用者新規登録</h2>
+<div class="form-wrapper">
+<form id="registerForm" method="POST" action="{% url 'accounts:user_register' %}">
+{% csrf_token %}
+<input type="hidden" name="user_id" value="{{ user_id }}">
+<div class="form-group full-width" style="display:none;">
+{{ form.email }}
+</div>
+
+<div id="errorMessage">
+{% if form.non_field_errors %}
+{% for error in form.non_field_errors %}
+<p class="text-danger">{{ error }}</p>
+{% endfor %}
+{% endif %}
+{% if error_message %}
+<p class="text-danger">{{ error_message }}</p>
+{% endif %}
+</div>
+
+<div class="form-grid">
+  <div class="form-group">
+    <label for="id_password">パスワード<span class="required">必須</span></label>
+    <div class="password-wrapper">
+      {{ form.password }}
+      <span class="toggle-eye" id="togglePass" onclick="togglePasswordVisibility('id_password', 'togglePass')">👁️</span>
+    </div>
+    {% for error in form.password.errors %}<p class="text-danger">{{ error }}</p>{% endfor %}
+  </div>
+
+  <div class="form-group">
+    <label for="id_password_confirm">確認用パスワード<span class="required">必須</span></label>
+    <div class="password-wrapper">
+      {{ form.password_confirm }}
+      <span class="toggle-eye" id="togglePassConfirm" onclick="togglePasswordVisibility('id_password_confirm', 'togglePassConfirm')">👁️</span>
+    </div>
+    {% for error in form.password_confirm.errors %}<p class="text-danger">{{ error }}</p>{% endfor %}
+  </div>
+
+  <div class="form-group">
+    <label for="id_gender">性別<span class="required">必須</span></label>
+    {{ form.gender }}
+    {% for error in form.gender.errors %}<p class="text-danger">{{ error }}</p>{% endfor %}
+  </div>
+
+  <div class="form-group">
+    <label for="id_birthday">生年月日<span class="required">必須</span></label>
+    {{ form.birthday }}
+    {% for error in form.birthday.errors %}<p class="text-danger">{{ error }}</p>{% endfor %}
+  </div>
+
+  <div class="form-group">
+    <label for="id_height">身長 (cm)</label>
+    {{ form.height }}
+    {% for error in form.height.errors %}<p class="text-danger">{{ error }}</p>{% endfor %}
+  </div>
+
+  <div class="form-group">
+    <label for="id_weight">体重 (kg)</label>
+    {{ form.weight }}
+    {% for error in form.weight.errors %}<p class="text-danger">{{ error }}</p>{% endfor %}
+  </div>
+
+  <div class="form-group full-width">
+    <label for="id_device_id">ウェアラブル機器</label>
+    <div class="device-search">
+      {{ form.device_id }}
+      <button type="button" onclick="searchDevices()">検索</button>
+    </div>
+    {% for error in form.device_id.errors %}<p class="text-danger">{{ error }}</p>{% endfor %}
+  </div>
+</div>
+
+<button type="submit" class="submit-button">登録</button>
+</form>
+</div>
+</div>
+
+<script>
+  function togglePasswordVisibility(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    if (input.type === "password") {
+      input.type = "text";
+      icon.textContent = "✕";
+    } else {
+      input.type = "password";
+      icon.textContent = "👁️";
+    }
+  }
+
+  function searchDevices() {
+    const deviceInput = document.getElementById('id_device_id');
+    deviceInput.disabled = true;
+    deviceInput.placeholder = '検索中...';
+
+    setTimeout(() => {
+      const foundDeviceId = 'EXAMPLE-DEVICE-XYZ';
+      deviceInput.value = foundDeviceId;
+      deviceInput.disabled = false;
+      deviceInput.placeholder = '機器ID';
+      alert(`Bluetooth接続されている機器を検出しました: ${foundDeviceId}`);
+    }, 1500);
+  }
+</script>
+</body>
+</html>

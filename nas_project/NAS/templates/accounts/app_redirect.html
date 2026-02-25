@@ -1,0 +1,127 @@
+<!-- templates/accounts/app_redirect.html -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アプリを開いています...</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            max-width: 400px;
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .button {
+            display: inline-block;
+            margin: 10px;
+            padding: 12px 30px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        .button:hover {
+            transform: scale(1.05);
+        }
+        .button.secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        #manual-options {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="spinner"></div>
+        <h2>アプリを開いています...</h2>
+        <p>少々お待ちください</p>
+        
+        <div id="manual-options">
+            <p>アプリが開かない場合は、下のボタンをタップしてください</p>
+            <a href="{{ app_url }}" class="button">
+                アプリを開く
+            </a>
+            <br>
+            <a href="{{ web_url }}" class="button secondary">
+                ブラウザで続ける
+            </a>
+        </div>
+    </div>
+    
+
+
+    <script>
+        console.log('📱 app_redirect.html 読み込み');
+        console.log('🔗 app_url: {{ app_url }}');
+        console.log('🔗 web_url: {{ web_url }}');
+        console.log('⚙️ action: {{ action }}');
+        
+        // ページの可視性を追跡
+        let pageHidden = false;
+        
+        // ページが非表示になったら（アプリが開いた場合）
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                pageHidden = true;
+                console.log('✅ ページが非表示になりました（アプリが開いた可能性）');
+            }
+        });
+        // 🚀 DOMとリソースが完全に読み込まれてから実行
+        window.onload = function() {
+            console.log('📦 全リソースの読み込み完了');
+            
+            // Gmail WebView対策：少しだけ（500ms）待機してから遷移
+            setTimeout(function() {
+                if (!pageHidden) {
+                    console.log('📱 アプリを開く試み...:', appUrl);
+                    window.location.href = appUrl;
+                }
+            }, 500);
+
+            // 3秒後に手動オプションを表示（既存ロジック維持）
+            setTimeout(function() {
+                if (!pageHidden) {
+                    console.log('⚠️ アプリが開かなかった可能性 - 手動オプションを表示');
+                    const spinner = document.querySelector('.spinner');
+                    if (spinner) spinner.style.display = 'none';
+                    document.querySelector('h2').textContent = 'アプリが開きませんか？';
+                    document.querySelector('p').textContent = '下のボタンから選択してください';
+                    document.getElementById('manual-options').style.display = 'block';
+                }
+            }, 3000);
+        };
+        
+    </script>
+</body>
+</html>

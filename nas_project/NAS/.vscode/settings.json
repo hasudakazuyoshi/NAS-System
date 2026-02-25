@@ -1,0 +1,12 @@
+{
+    "terminal.integrated.profiles.windows": {
+        "PowerShell": {
+            "source": "PowerShell",
+            // 仮想環境の有効化を妨げる実行ポリシーを緩和
+            "args": ["-ExecutionPolicy", "RemoteSigned"],
+            "icon": "terminal-powershell"
+        }
+    },
+    // ターミナルで仮想環境を自動的に有効化する設定
+    "python.terminal.activateEnvironment": true 
+}

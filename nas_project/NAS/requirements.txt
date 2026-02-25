@@ -1,0 +1,36 @@
+# ==== 基本的なDjango環境 ====
+Django==5.1.2
+asgiref==3.10.0
+sqlparse==0.5.3
+tzdata==2025.2
+
+# ==== 管理画面拡張・画像処理 ====
+django-ckeditor==6.7.3
+django-js-asset==3.1.2
+Pillow==11.3.0
+
+# ==== REST API / 外部連携 ====
+djangorestframework==3.15.2
+djangorestframework-simplejwt==5.3.1
+requests==2.32.3
+django-cors-headers==4.3.1
+
+# ==== Google API系 ====
+google-api-python-client==2.152.0
+google-auth==2.35.0
+google-auth-httplib2==0.2.0
+google-auth-oauthlib==1.2.1
+
+# ==== 環境変数管理 ====
+python-dotenv==1.0.1
+
+# ==== DB接続 (MySQL用) ====
+mysqlclient==2.2.4
+
+# ==== 開発支援 ====
+gunicorn==23.0.0
+whitenoise==6.8.2
+python-dateutil
+
+# ==== Gemini API（必須） ====
+google-genai

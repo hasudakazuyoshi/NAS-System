@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>利用者情報 - NASシステム</title>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background-color: #FEF3EC;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 0px;
+        }
+
+        .content {
+            width: 90%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            box-sizing: border-box;
+        }
+
+        .top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+        }
+
+
+        .back-button {
+            background-color: #f1f1f1; border: 1px solid #ccc; padding: 8px 16px;
+            border-radius: 6px; cursor: pointer; font-size: 14px; transition: 0.2s;
+            color: #333;
+        }
+        .back-button:hover { background-color: #e0e0e0; }
+
+        h2 {
+            width: 100%;
+            text-align: center;
+            color: #333;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            margin-top: 0;
+        }
+
+        #errorMessage {
+            color: #dc3545;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-align: center;
+            display: none;
+            width: 100%;
+            padding: 10px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+
+        .info-section {
+            width: 100%;
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .info-row:last-child {
+             margin-bottom: 0;
+        }
+
+        .info-label {
+            font-size: 16px;
+            color: #333;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        .info-value {
+             font-size: 16px;
+             color: #555;
+        }
+
+        .change-button {
+            background-color: #C8E6C9;
+            color: #333;
+            border: 1px solid #A5D6A7;
+            padding: 6px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .change-button:hover {
+            background-color: #A5D6A7;
+        }
+
+        .static-info-row {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+         .input-row:last-child {
+             margin-bottom: 0;
+         }
+
+        .input-row label {
+            font-size: 16px;
+            color: #333;
+            font-weight: bold;
+            width: 100px;
+            text-align: right;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .input-row input[type="text"],
+        .input-row input[type="number"],
+        .input-row select {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            font-family: "Segoe UI", sans-serif;
+            box-sizing: border-box;
+        }
+
+         .device-select-row {
+             display: flex;
+             align-items: center;
+             gap: 10px;
+         }
+         .device-select-row select {
+             width: 200px;
+         }
+         .device-search-button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            background-color: #6c757d;
+            color: white;
+            transition: 0.2s;
+            flex-shrink: 0;
+         }
+         .device-search-button:hover { background-color: #5a6268;}
+
+         #wearable-row {
+             justify-content: center;
+         }
+
+
+        .save-button {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .save-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .save-button:hover:disabled {
+             background-color: #ccc;
+        }
+
+    </style>
+</head>
+<body>
+{% include 'common/user_header.html' %}
+<div class="content">
+    <div class="top-bar">
+        <button class="back-button" onclick="goBack()">← 一覧へ戻る</button>
+    </div>
+
+    <h2>利用者情報</h2>
+    <div id="errorMessage"></div>
+
+    <div class="info-section">
+        <div class="info-row">
+            <span class="info-label">メールアドレス ID</span>
+            <button class="change-button" onclick="location.href='{% url 'accounts:change_mail' %}'">変更</button>
+        </div>
+        <div class="info-row">
+            <span class="info-label">パスワード</span>
+            <button class="change-button" onclick="location.href='{% url 'accounts:change_password' %}'">変更</button>
+        </div>
+    </div>
+
+    <!-- 🔽 DBから取得して表示 -->
+    <div class="info-section static-info-row">
+        <span>生年月日: <span class="info-value" id="birthdate">未登録</span></span>
+        <span>性別: <span class="info-value" id="gender">未登録</span></span>
+    </div>
+
+    <div class="info-section">
+        <div class="input-row">
+            <label for="height">身長</label>
+            <input type="number" id="height" step="0.1" placeholder="未入力">
+        </div>
+        <div class="input-row">
+            <label for="weight">体重</label>
+            <input type="number" id="weight" step="0.1" placeholder="未入力">
+        </div>
+    </div>
+
+    <div class="info-section">
+        <div class="input-row" id="wearable-row">
+            <label for="wearable">ウェアラブル機器</label>
+            <div class="device-select-row">
+                <select id="wearable"><option value="">未選択</option></select>
+                <button class="device-search-button" onclick="searchDevices()">検索</button>
+            </div>
+        </div>
+    </div>
+
+    <button class="save-button" id="saveButton" onclick="saveUserInfo()" disabled>保存</button>
+</div>
+
+<script>
+let initialHeight = '', initialWeight = '', initialWearable = '', hasChanges = false;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const heightInput = document.getElementById('height');
+    const weightInput = document.getElementById('weight');
+    const wearableSelect = document.getElementById('wearable');
+    const saveButton = document.getElementById('saveButton');
+
+    // 変更検知イベントを登録
+    ['input', 'change'].forEach(evt => {
+        heightInput.addEventListener(evt, checkForChanges);
+        weightInput.addEventListener(evt, checkForChanges);
+        wearableSelect.addEventListener(evt, checkForChanges);
+    });
+
+    // ✅ DBから利用者情報を取得
+    fetch('/accounts/api/get_profile/')
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const user = data.data;
+                document.getElementById('birthdate').textContent = user.birthdate ? user.birthdate.replace(/-/g, '/') : '未登録';
+                let genderText = '未登録';
+                if (user.gender === '男' || user.gender === 'M' || user.gender === 'male') genderText = '男';
+                if (user.gender === '女' || user.gender === 'F' || user.gender === 'female') genderText = '女';
+                document.getElementById('gender').textContent = genderText;
+
+                if (user.height) heightInput.value = user.height;
+                if (user.weight) weightInput.value = user.weight;
+
+                if (user.device_id) {
+                    const option = document.createElement('option');
+                    option.value = user.device_id;
+                    option.textContent = `${user.device_id} (接続済)`;
+                    option.selected = true;
+                    wearableSelect.appendChild(option);
+                }
+
+                initialHeight = heightInput.value;
+                initialWeight = weightInput.value;
+                initialWearable = wearableSelect.value;
+
+                checkForChanges(); // ✅ 初期チェック
+            } else {
+                showError(data.message || "利用者情報の取得に失敗しました。");
+            }
+        })
+        .catch(() => showError("サーバーとの通信に失敗しました。"));
+});
+
+function checkForChanges() {
+    const saveButton = document.getElementById('saveButton');
+    const currentHeight = document.getElementById('height').value;
+    const currentWeight = document.getElementById('weight').value;
+    const currentWearable = document.getElementById('wearable').value;
+    hasChanges = (
+        currentHeight !== initialHeight ||
+        currentWeight !== initialWeight ||
+        currentWearable !== initialWearable
+    );
+    saveButton.disabled = !hasChanges;
+}
+
+// ✅ 保存処理（DB更新 → 成功ならリロード）
+function saveUserInfo() {
+    const height = document.getElementById('height').value;
+    const weight = document.getElementById('weight').value;
+    const device_id = document.getElementById('wearable').value;
+
+    const csrftoken = getCookie('csrftoken');
+
+    fetch('/accounts/api/update_profile/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify({
+            height: height,
+            weight: weight,
+            device_id: device_id
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert('プロフィールを保存しました！');
+            location.reload(); // ✅ 成功したらリロード
+        } else {
+            showError(data.message || '保存に失敗しました。');
+        }
+    })
+    .catch(() => showError("サーバーとの通信に失敗しました。"));
+}
+
+function showError(msg) {
+    const e = document.getElementById('errorMessage');
+    e.textContent = msg;
+    e.style.display = 'block';
+    window.scrollTo(0, 0);
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        for (let cookie of document.cookie.split(';')) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+/* ...既存のスクリプトの最後に追加... */
+
+function goBack() {
+    // ページ履歴があれば戻る
+    if (document.referrer && document.referrer !== window.location.href) {
+        window.history.back();
+    } else {
+        // 戻る履歴がない場合、ホーム画面に遷移（安全策）
+        window.location.href = "{% url 'accounts:user_home' %}";
+    }
+}
+
+</script>
+</body>
+</html>
